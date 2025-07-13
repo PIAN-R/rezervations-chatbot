@@ -1,0 +1,193 @@
+I'll help you display the project tree and outline the complete workflow from user interaction
+to boarding pass display. Let me start by exploring the project structure and then trace 
+execution flow.
+
+Ran tool
+Now let me explore the key directories to understand the complete structure:
+
+Ran tool
+Ran tool
+Ran tool
+Ran tool
+Ran tool
+Now let me examine the key files to understand the workflow. Let me start with the main chat interface and API routes:
+
+Read file: app/(chat)/page.tsx
+Read file: components/custom/chat.tsx
+Read file: app/(chat)/api/chat/route.ts
+Read file: ai/actions.ts
+Read file: components/flights/boarding-pass.tsx
+Read file: components/custom/message.tsx
+Read file: db/queries.ts
+Now let me examine the flight-related components to understand the complete workflow:
+
+Read file: components/flights/list-flights.tsx
+Read file: components/flights/create-reservation.tsx
+Read file: components/flights/authorize-payment.tsx
+Now let me check the reservation API route to understand the payment verification:
+
+Read file: app/(chat)/api/reservation/route.ts
+Now let me check the AI configuration to understand the model setup:
+
+Read file: ai/index.ts
+Perfect! Now I have a comprehensive understanding of the project structure and workflow. 
+Let me provide you with the complete project tree and workflow analysis.
+
+## Project Tree Structure
+
+```
+avion-chatbot/
+├── ai/                          # AI configuration and actions
+│   ├── actions.ts               # Flight-related AI actions (search, status, seats, pricing)
+│   ├── custom-middleware.ts     # Custom AI middleware
+│   └── index.ts                 # AI model configuration (OpenAI GPT-4o)
+├── app/                         # Next.js app directory
+│   ├── (auth)/                  # Authentication routes
+│   │   ├── actions.ts           # Auth actions
+│   │   ├── api/auth/[...nextauth]/route.ts  # NextAuth API
+│   │   ├── auth.config.ts       # Auth configuration
+│   │   ├── auth.ts              # Auth setup
+│   │   ├── login/page.tsx       # Login page
+│   │   └── register/page.tsx    # Registration page
+│   ├── (chat)/                  # Chat interface routes
+│   │   ├── api/                 # API endpoints
+│   │   │   ├── chat/route.ts    # Main chat API (handles AI interactions)
+│   │   │   ├── files/upload/route.ts  # File upload API
+│   │   │   ├── history/route.ts # Chat history API
+│   │   │   └── reservation/route.ts   # Reservation management API
+│   │   ├── chat/[id]/page.tsx   # Individual chat page
+│   │   └── page.tsx             # Main chat page
+│   ├── favicon.ico
+│   ├── globals.css              # Global styles
+│   └── layout.tsx               # Root layout
+├── components/                  # React components
+│   ├── custom/                  # Core chat components
+│   │   ├── auth-form.tsx        # Authentication form
+│   │   ├── chat.tsx             # Main chat interface
+│   │   ├── history.tsx          # Chat history component
+│   │   ├── icons.tsx            # Icon components
+│   │   ├── markdown.tsx         # Markdown renderer
+│   │   ├── message.tsx          # Message display component
+│   │   ├── multimodal-input.tsx # Input with file attachments
+│   │   ├── navbar.tsx           # Navigation bar
+│   │   ├── overview.tsx         # Chat overview
+│   │   ├── preview-attachment.tsx # File preview
+│   │   ├── submit-button.tsx    # Submit button
+│   │   ├── theme-provider.tsx   # Theme provider
+│   │   ├── theme-toggle.tsx     # Theme toggle
+│   │   ├── use-scroll-to-bottom.ts # Scroll hook
+│   │   ├── use-window-size.tsx  # Window size hook
+│   │   └── weather.tsx          # Weather display
+│   ├── flights/                 # Flight booking components
+│   │   ├── authorize-payment.tsx # Payment authorization
+│   │   ├── boarding-pass.tsx    # Boarding pass display
+│   │   ├── create-reservation.tsx # Reservation creation
+│   │   ├── flight-status.tsx    # Flight status display
+│   │   ├── list-flights.tsx     # Flight search results
+│   │   ├── select-seats.tsx     # Seat selection
+│   │   └── verify-payment.tsx   # Payment verification
+│   └── ui/                      # UI components (shadcn/ui)
+│       ├── alert-dialog.tsx
+│       ├── button.tsx
+│       ├── dropdown-menu.tsx
+│       ├── input.tsx
+│       ├── label.tsx
+│       ├── sheet.tsx
+│       └── textarea.tsx
+├── db/                          # Database layer
+│   ├── migrate.ts               # Database migrations
+│   ├── queries.ts               # Database queries
+│   └── schema.ts                # Database schema
+├── lib/                         # Utilities and configurations
+│   ├── drizzle/                 # Database migration files
+│   └── utils.ts                 # Utility functions
+├── middleware.ts                # Next.js middleware
+├── package.json                 # Dependencies
+└── [config files]               # Various configuration files
+```
+
+## Complete Workflow: User Interaction to Boarding Pass
+
+### 1. **Initial User Interaction**
+- **Entry Point**: `app/(chat)/page.tsx` → `components/custom/chat.tsx`
+- **Function**: `useChat()` hook from Vercel AI SDK
+- **Flow**: User types message → `handleSubmit()` → API call to `/api/chat`
+
+### 2. **Chat API Processing** (`app/(chat)/api/chat/route.ts`)
+- **Authentication**: `auth()` checks user session
+- **Message Processing**: `convertToCoreMessages()` converts messages
+- **AI Model**: `streamText()` with OpenAI GPT-4o model
+- **System Prompt**: Defines flight booking workflow and tool usage
+
+### 3. **AI Tool Execution Flow**
+
+#### **Step 1: Flight Search**
+- **Tool**: `searchFlights`
+- **Function**: `generateSampleFlightSearchResults()` in `ai/actions.ts`
+- **Component**: `ListFlights` displays results
+- **User Action**: Clicks on flight → `append()` sends selection to chat
+
+#### **Step 2: Seat Selection**
+- **Tool**: `selectSeats`
+- **Function**: `generateSampleSeatSelection()` in `ai/actions.ts`
+- **Component**: `SelectSeats` displays available seats
+- **User Action**: Clicks on seat → `append()` sends selection to chat
+
+#### **Step 3: Reservation Creation**
+- **Tool**: `createReservation`
+- **Functions**: 
+  - `generateReservationPrice()` in `ai/actions.ts`
+  - `createReservation()` in `db/queries.ts`
+- **Component**: `CreateReservation` displays reservation details
+- **Database**: Creates reservation record with `hasCompletedPayment: false`
+
+#### **Step 4: Payment Authorization**
+- **Tool**: `authorizePayment`
+- **Component**: `AuthorizePayment` displays payment form
+- **User Action**: Enters "vercel" (magic word) → API call to `/api/reservation`
+- **API**: `PATCH /api/reservation` validates magic word and updates payment status
+
+#### **Step 5: Payment Verification**
+- **Tool**: `verifyPayment`
+- **Function**: `getReservationById()` in `db/queries.ts`
+- **Component**: `VerifyPayment` shows payment status
+- **Logic**: Checks `hasCompletedPayment` field in database
+
+#### **Step 6: Boarding Pass Display**
+- **Tool**: `displayBoardingPass`
+- **Component**: `DisplayBoardingPass` renders boarding pass
+- **Data**: Uses reservation details to generate boarding pass
+
+### 4. **Message Rendering** (`components/custom/message.tsx`)
+- **Tool Invocations**: Maps tool results to appropriate components
+- **Conditional Rendering**: Shows different components based on `toolName`
+- **States**: Handles loading states and result states
+
+### 5. **Database Operations** (`db/queries.ts`)
+- **Reservation Management**:
+  - `createReservation()`: Creates new reservation
+  - `getReservationById()`: Retrieves reservation details
+  - `updateReservation()`: Updates payment status
+- **Chat Persistence**: `saveChat()` saves conversation history
+
+### 6. **Key Functions Called in Sequence**
+
+1. **User Input** → `handleSubmit()` in `chat.tsx`
+2. **API Call** → `POST /api/chat` in `route.ts`
+3. **AI Processing** → `streamText()` with tools
+4. **Tool Execution** → Various functions in `ai/actions.ts`
+5. **Database Operations** → Functions in `db/queries.ts`
+6. **Component Rendering** → Flight components in `components/flights/`
+7. **User Interaction** → `append()` for selections
+8. **Payment Processing** → `PATCH /api/reservation`
+9. **Final Display** → `DisplayBoardingPass` component
+
+### 7. **Data Flow**
+- **User Messages** → AI Model → Tool Calls → Database → UI Components
+- **Reservation Data** → Database (PostgreSQL via Drizzle ORM)
+- **Payment Status** → Database field `hasCompletedPayment`
+- **Chat History** → Database table `chat`
+
+This workflow creates a complete flight booking experience from initial 
+user interaction through to boarding pass generation, with proper authentication, 
+database persistence, and interactive UI components at each step.
