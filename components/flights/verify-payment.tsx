@@ -1,3 +1,5 @@
+import { useLanguage } from "../custom/language-provider";
+
 export function VerifyPayment({
   result: { hasCompletedPayment },
 }: {
@@ -5,11 +7,12 @@ export function VerifyPayment({
     hasCompletedPayment: boolean;
   };
 }) {
+  const { t } = useLanguage();
   return (
     <div>
       {hasCompletedPayment
-        ? "Your payment transaction has been verified!"
-        : "Unable to verify your payment, please try again!"}
+        ? t('paymentVerified')
+        : t('paymentNotVerified')}
     </div>
   );
 }

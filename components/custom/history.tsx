@@ -11,6 +11,7 @@ import useSWR from "swr";
 
 import { Chat } from "@/db/schema";
 import { fetcher, getTitleFromChat } from "@/lib/utils";
+import { useLanguage } from "./language-provider";
 
 import {
   InfoIcon,
@@ -85,6 +86,8 @@ export const History = ({ user }: { user: User | undefined }) => {
     setShowDeleteDialog(false);
   };
 
+  const { t } = useLanguage();
+
   return (
     <>
       <Button
@@ -130,7 +133,7 @@ export const History = ({ user }: { user: User | undefined }) => {
                 asChild
               >
                 <Link href="/">
-                  <div>Start a new chat</div>
+                  <div>{t('startNewChat')}</div>
                   <PencilEditIcon size={14} />
                 </Link>
               </Button>

@@ -4,6 +4,7 @@ import { useChat } from "ai/react";
 import { useState } from "react";
 import cx from "classnames";
 import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { useLanguage } from "../custom/language-provider";
 
 interface Seat {
   seatNumber: string;
@@ -144,6 +145,7 @@ export function SelectSeats({
     body: { id: chatId },
     maxSteps: 5,
   });
+  const { t } = useLanguage();
 
   const [selectedClass, setSelectedClass] = useState<string>("Economy Class");
 
@@ -176,10 +178,10 @@ export function SelectSeats({
       <div className="flex flex-col gap-2 bg-muted rounded-lg p-4">
         <div className="flex items-center gap-2 text-amber-600">
           <AlertCircle size={16} />
-          <span className="text-sm font-medium">Sample seat map</span>
+          <span className="text-sm font-medium">{t('sampleSeatMap')}</span>
         </div>
         <p className="text-xs text-muted-foreground">
-          Real seat availability is temporarily unavailable. Showing sample seat map for demonstration.
+          {t('realSeatDataUnavailable')}
         </p>
       </div>
     );
@@ -190,10 +192,10 @@ export function SelectSeats({
       <div className="flex flex-col gap-2 bg-muted rounded-lg p-4">
         <div className="flex items-center gap-2 text-red-600">
           <AlertCircle size={16} />
-          <span className="text-sm font-medium">Invalid seat data</span>
+          <span className="text-sm font-medium">{t('invalidSeatData')}</span>
         </div>
         <p className="text-xs text-muted-foreground">
-          The seat data format is invalid or missing required information.
+          {t('seatDataInvalid')}
         </p>
       </div>
     );
@@ -257,7 +259,7 @@ export function SelectSeats({
                               if (seat.isAvailable) {
                                 append({
                                   role: "user",
-                                  content: `I'd like to go with seat ${seat.seatNumber} in ${className} for $${seat.priceInUSD}`,
+                                  content: t('chooseSeat', {seat: seat.seatNumber, class: className, price: `$${seat.priceInUSD}`}),
                                 });
                               }
                             }}
@@ -295,13 +297,13 @@ export function SelectSeats({
         <div className="flex flex-row items-center gap-2">
           <div className={`size-4 bg-green-600 rounded-sm border border-green-700`} />
           <div className="text-xs text-muted-foreground font-medium">
-            Available
+            {t('available')}
           </div>
         </div>
         <div className="flex flex-row items-center gap-2">
           <div className="size-4 bg-gray-500 border border-gray-600 rounded-sm" />
           <div className="text-xs text-muted-foreground font-medium">
-            Unavailable
+            {t('unavailable')}
           </div>
         </div>
       </div>

@@ -3,6 +3,8 @@
 import { useChat } from "ai/react";
 import { differenceInHours, format } from "date-fns";
 import { AlertCircle, Plane, Clock, MapPin } from "lucide-react";
+import { useLanguage } from "../custom/language-provider";
+import { useState } from "react";
 
 const SAMPLE = {
   flights: [
@@ -86,6 +88,8 @@ export function ListFlights({
     body: { id: chatId },
     maxSteps: 5,
   });
+  const { t } = useLanguage();
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Check if we have real data or fallback data
   const hasRealData = results !== SAMPLE && results.flights.length > 0;
@@ -95,10 +99,10 @@ export function ListFlights({
       <div className="rounded-lg bg-muted px-4 py-3 flex flex-col gap-2">
         <div className="flex items-center gap-2 text-amber-600">
           <AlertCircle size={16} />
-          <span className="text-sm font-medium">Using sample data</span>
+          <span className="text-sm font-medium">{t('usingSampleData')}</span>
         </div>
         <p className="text-xs text-muted-foreground">
-          Real flight data is temporarily unavailable. Showing sample flights for demonstration.
+          {t('realFlightDataUnavailable')}
         </p>
       </div>
     );
@@ -122,20 +126,15 @@ export function ListFlights({
             )
           : 0;
 
+        const isExpanded = expandedId === flight.id;
+
         return (
           <div
             key={flight.id}
-            className="cursor-pointer flex flex-row border-b dark:border-zinc-700 py-3 last-of-type:border-none group hover:bg-muted/50 transition-colors"
-            onClick={() => {
-              // Pass the selected flight's details including price for consistency
-              append({
-                role: "user",
-                content: `I would like to book the ${flight.airlines.join(", ")} flight for $${flight.priceInUSD.toFixed(0)}!`,
-              });
-            }}
+            className="cursor-pointer flex flex-row border-b dark:border-zinc-700 py-3 last-of-type:border-none group hover:bg-muted/50 transition-colors relative"
           >
             <div className="flex flex-col w-full gap-1 justify-between">
-              <div className="flex flex-row gap-2 text-base sm:text-base font-medium group-hover:underline">
+              <div className="flex flex-row gap-2 text-base sm:text-base font-medium group-hover:underline items-center">
                 <div className="flex items-center gap-1">
                   <Clock size={14} className="text-muted-foreground" />
                   <span>{departureTime}</span>
@@ -144,35 +143,61 @@ export function ListFlights({
                   <Plane size={14} className="text-muted-foreground" />
                   <span>{arrivalTime}</span>
                 </div>
+                {/* One Way badge */}
+                <span className="ml-2 px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-100 font-semibold border border-zinc-700">{t('oneWay')}</span>
               </div>
-              
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin size={12} />
                 <span className="hidden sm:inline">{flight.airlines.join(", ")}</span>
                 <span className="sm:hidden">{flight.airlines.length} airline{flight.airlines.length > 1 ? 's' : ''}</span>
               </div>
-              
+              {/* Stops clickable */}
               <div className="text-xs text-muted-foreground">
-                {flight.numberOfStops === 0 ? 'Non-stop' : `${flight.numberOfStops} stop${flight.numberOfStops > 1 ? 's' : ''}`}
+                <button
+                  type="button"
+                  className="underline hover:text-primary focus:outline-none"
+                  onClick={() => setExpandedId(isExpanded ? null : flight.id)}
+                  tabIndex={0}
+                >
+                  {flight.numberOfStops === 0 ? t('nonStop') : t('stop', {count: flight.numberOfStops})}
+                </button>
               </div>
+              {/* Expanded stop details */}
+              {isExpanded && (
+                <div className="mt-2 p-2 rounded bg-zinc-900 text-xs text-zinc-100 border border-zinc-700">
+                  {/* Placeholder for stop details */}
+                  {flight.numberOfStops > 0
+                    ? t('noStopDetails')
+                    : t('noStopsOnThisFlight')}
+                </div>
+              )}
             </div>
-
             <div className="flex flex-col gap-1 items-end">
               <div className="flex flex-row gap-2">
                 <div className="text-base sm:text-base text-emerald-600 dark:text-emerald-500 font-medium">
                   ${flight.priceInUSD.toFixed(0)}
                 </div>
               </div>
-              
               <div className="text-xs text-muted-foreground">
                 {duration > 0 ? `${duration}h` : ''}
               </div>
-              
               <div className="text-xs text-muted-foreground flex flex-row items-center gap-1">
                 <span>{flight.departure.airportCode}</span>
                 <Plane size={10} />
                 <span>{flight.arrival.airportCode}</span>
               </div>
+              {/* Book button (moved here for clarity, optional) */}
+              <button
+                className="mt-2 px-3 py-1 rounded bg-emerald-700 text-xs text-white font-semibold hover:bg-emerald-800"
+                onClick={() => {
+                  append({
+                    role: "user",
+                    content: t('bookFlightFor', {airline: flight.airlines.join(", "), price: `$${flight.priceInUSD.toFixed(0)}`}),
+                  });
+                }}
+              >
+                {t('book')}
+              </button>
             </div>
           </div>
         );
