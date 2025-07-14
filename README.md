@@ -1,61 +1,47 @@
-<a href="https://chat.vercel.ai/">
-  <img alt="Next.js 14 and App Router-ready AI chatbot." src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Next.js Gemini Chatbot</h1>
-</a>
+# AVION Rezervation Chatbot
 
-<p align="center">
-  An Open-Source AI Chatbot Template Built With Next.js and the AI SDK by Vercel.
-</p>
+## Introduction
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#model-providers"><strong>Model Providers</strong></a> ·
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
-  <a href="#running-locally"><strong>Running locally</strong></a>
-</p>
-<br/>
+**AVION Rezervation Chatbot** is a modern, multilingual conversational assistant for booking flights and hotels. Designed for seamless, natural interaction, AVION guides users through every step of the travel booking process—no forms, no hassle, just results. The chatbot supports English, Romanian, and Russian, making it accessible to a wide audience.
 
-## Features
+## Workflow Overview
 
-- [Next.js](https://nextjs.org) App Router
-  - Advanced routing for seamless navigation and performance
-  - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
-- [AI SDK](https://sdk.vercel.ai/docs)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports Google (default), OpenAI, Anthropic, Cohere, and other model providers
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Vercel Postgres powered by Neon](https://vercel.com/storage/postgres) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient object storage
-- [NextAuth.js](https://github.com/nextauthjs/next-auth)
-  - Simple and secure authentication
+1. **Start a Conversation**
+   - Users can ask to book a flight or hotel, or use quick action buttons to begin.
 
-## Model Providers
+2. **Flight Booking Flow**
+   - **Search Flights:** Instantly find real-time flights between cities.
+   - **Select Flight:** Choose from visually rich, interactive flight cards.
+   - **Select Seats:** Pick your preferred seat from an interactive seat map.
+   - **Reservation Summary:** Review all details and confirm your reservation.
+   - **Payment Authorization:** Securely authorize payment.
+   - **Payment Verification:** The chatbot verifies payment before issuing a boarding pass.
+   - **Boarding Pass:** Receive a digital boarding pass for your journey.
 
-This template ships with Google Gemini `gemini-1.5-pro` models as the default. However, with the [AI SDK](https://sdk.vercel.ai/docs), you can switch LLM providers to [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://sdk.vercel.ai/providers/ai-sdk-providers) with just a few lines of code.
+3. **Hotel Booking Flow**
+   - **Search Hotels:** Find hotels in your destination city for your travel dates.
+   - **Select Hotel:** Browse and select from modern, interactive hotel cards.
+   - **Select Room:** Choose your preferred room type and amenities.
+   - **Reservation Summary:** Review your booking and guest details.
+   - **Payment Authorization:** Authorize payment for your stay.
+   - **Payment Verification:** The chatbot verifies payment before confirming your booking.
+   - **Booking Confirmation:** Receive a confirmation with all reservation details.
 
-## Deploy Your Own
+4. **Multilingual Support**
+   - Instantly switch between English, Romanian, and Russian at any time.
 
-You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
+5. **User Experience**
+   - All actions can be performed via chat or by clicking on interactive cards.
+   - The chatbot ensures payment is verified before issuing any confirmation or boarding pass, for a secure and realistic experience.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fgemini-chatbot&env=AUTH_SECRET,GOOGLE_GENERATIVE_AI_API_KEY&envDescription=Learn%20more%20about%20how%20to%20get%20the%20API%20Keys%20for%20the%20application&envLink=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fgemini-chatbot%2Fblob%2Fmain%2F.env.example&demo-title=Next.js%20Gemini%20Chatbot&demo-description=An%20Open-Source%20AI%20Chatbot%20Template%20Built%20With%20Next.js%20and%20the%20AI%20SDK%20by%20Vercel.&demo-url=https%3A%2F%2Fgemini.vercel.ai&stores=[{%22type%22:%22postgres%22},{%22type%22:%22blob%22}])
+## Value Proposition
 
-## Running locally
+- **Conversational & Intuitive:** Book flights and hotels naturally, just by chatting—no complex forms or confusing steps.
+- **Modern UI:** Enjoy a visually appealing, interactive experience with clickable cards and real-time feedback.
+- **Multilingual:** Serve a global audience with seamless language switching.
+- **Secure & Reliable:** Payment is always verified before issuing confirmations, ensuring trust and peace of mind.
+- **Open & Extensible:** Easily adapt the workflow or UI for new travel services or business needs.
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
+---
 
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various Google Cloud and authentication provider accounts.
-
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
-
-```bash
-pnpm install
-pnpm dev
-```
-
-Your app template should now be running on [localhost:3000](http://localhost:3000/).
+**AVION Rezervation Chatbot** is the ideal solution for anyone seeking a fast, user-friendly, and secure way to book travel—whether for business, leisure, or anything in between. 
