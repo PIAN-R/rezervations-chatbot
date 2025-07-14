@@ -329,3 +329,131 @@ export async function generateReservationPrice(props: {
 
   return reservation;
 }
+
+// --- Hotel Booking: Mock Data and Sample Search Function ---
+
+export async function generateSampleHotelSearchResults({
+  city,
+  checkInDate,
+  checkOutDate,
+  adults = 1,
+  roomQuantity = 1,
+}: {
+  city: string;
+  checkInDate: string;
+  checkOutDate: string;
+  adults?: number;
+  roomQuantity?: number;
+}) {
+  // For now, return mock data. Later, call amadeusClient.searchHotels if desired.
+  const hotels = [
+    {
+      id: 'hotel_1',
+      name: 'The Grand London Hotel',
+      address: '123 London St, London, UK',
+      pricePerNight: 220,
+      totalNights: 3,
+      totalPrice: 660,
+      rating: 4.7,
+      amenities: ['Free WiFi', 'Breakfast included', 'Gym', 'Bar'],
+      roomType: 'Deluxe King Room',
+      imageUrl: '',
+    },
+    {
+      id: 'hotel_2',
+      name: 'City Center Inn',
+      address: '456 Central Ave, London, UK',
+      pricePerNight: 150,
+      totalNights: 3,
+      totalPrice: 450,
+      rating: 4.2,
+      amenities: ['Free WiFi', 'Breakfast included'],
+      roomType: 'Standard Double Room',
+      imageUrl: '',
+    },
+    {
+      id: 'hotel_3',
+      name: 'Budget Stay London',
+      address: '789 Budget Rd, London, UK',
+      pricePerNight: 90,
+      totalNights: 3,
+      totalPrice: 270,
+      rating: 3.8,
+      amenities: ['Free WiFi'],
+      roomType: 'Single Room',
+      imageUrl: '',
+    },
+  ];
+  return { hotels };
+}
+
+// --- Hotel Booking: Mock Data and Sample Room Selection, Reservation, and Payment ---
+
+export async function generateSampleHotelRoomSelection({ hotelId }: { hotelId: string }) {
+  // For now, return mock room options for the selected hotel
+  const rooms = [
+    {
+      id: 'room_1',
+      type: 'Deluxe King Room',
+      pricePerNight: 220,
+      amenities: ['Free WiFi', 'Breakfast included', 'Gym', 'Bar'],
+      refundable: true,
+      imageUrl: '',
+    },
+    {
+      id: 'room_2',
+      type: 'Standard Double Room',
+      pricePerNight: 150,
+      amenities: ['Free WiFi', 'Breakfast included'],
+      refundable: false,
+      imageUrl: '',
+    },
+    {
+      id: 'room_3',
+      type: 'Single Room',
+      pricePerNight: 90,
+      amenities: ['Free WiFi'],
+      refundable: false,
+      imageUrl: '',
+    },
+  ];
+  return { rooms };
+}
+
+export async function generateSampleHotelReservation({
+  hotelId,
+  roomId,
+  guestName,
+  checkInDate,
+  checkOutDate,
+  totalPrice,
+}: {
+  hotelId: string;
+  roomId: string;
+  guestName: string;
+  checkInDate: string;
+  checkOutDate: string;
+  totalPrice: number;
+}) {
+  // Return a mock reservation object
+  return {
+    reservationId: 'hotel_res_123',
+    hotelId,
+    roomId,
+    guestName,
+    checkInDate,
+    checkOutDate,
+    totalPrice,
+    hasCompletedPayment: false,
+  };
+}
+
+export async function generateSampleHotelPaymentAuthorization({ reservationId }: { reservationId: string }) {
+  // Simulate payment authorization
+  return { reservationId };
+}
+
+export async function generateSampleHotelPaymentVerification({ reservationId }: { reservationId: string }) {
+  // Simulate payment verification (always successful for mock)
+  return { hasCompletedPayment: true };
+}

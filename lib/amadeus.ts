@@ -155,8 +155,9 @@ class AmadeusClient {
   private async getToken(): Promise<string> {
     const now = Date.now();
     
-    // Check if we have a valid cached token
-    if (this.token && this.tokenExpiry > now) {
+    if (!this.token || !this.tokenExpiry) {
+      // No token or expiry, fetch a new one below
+    } else if (this.tokenExpiry > now) {
       return this.token.access_token;
     }
 
@@ -340,6 +341,31 @@ class AmadeusClient {
         flightOffers: [flightOffer],
       },
     });
+  }
+
+  async searchHotels(params: {
+    cityCode: string;
+    checkInDate: string;
+    checkOutDate: string;
+    adults?: number;
+    roomQuantity?: number;
+    currencyCode?: string;
+    max?: number;
+  }): Promise<any> {
+    const searchParams: Record<string, string> = {
+      cityCode: params.cityCode,
+      checkInDate: params.checkInDate,
+      checkOutDate: params.checkOutDate,
+      adults: params.adults?.toString() || '1',
+      roomQuantity: params.roomQuantity?.toString() || '1',
+      currency: params.currencyCode || 'USD',
+      // Amadeus test API may not support all params, but these are standard
+      // Add max if supported
+    };
+    if (params.max) {
+      searchParams['page[limit]'] = params.max.toString();
+    }
+    return this.makeRequest<any>('/v3/shopping/hotel-offers', searchParams);
   }
 }
 

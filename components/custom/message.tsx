@@ -15,6 +15,10 @@ import { FlightStatus } from "../flights/flight-status";
 import { ListFlights } from "../flights/list-flights";
 import { SelectSeats } from "../flights/select-seats";
 import { VerifyPayment } from "../flights/verify-payment";
+import { ListHotels } from "../hotels/list-hotels";
+import { SelectRoom } from "../hotels/select-room";
+import { ReservationSummary } from "../hotels/reservation-summary";
+import { BookingConfirmation } from "../hotels/booking-confirmation";
 
 export const Message = ({
   chatId,
@@ -22,12 +26,17 @@ export const Message = ({
   content,
   toolInvocations,
   attachments,
+  append,
 }: {
   chatId: string;
   role: string;
   content: string | ReactNode;
   toolInvocations: Array<ToolInvocation> | undefined;
   attachments?: Array<Attachment>;
+  append: (
+    message: { role: string; content: string },
+    chatRequestOptions?: any
+  ) => Promise<string | null | undefined>;
 }) => {
   return (
     <motion.div
@@ -74,6 +83,24 @@ export const Message = ({
                       <DisplayBoardingPass boardingPass={result} />
                     ) : toolName === "verifyPayment" ? (
                       <VerifyPayment result={result} />
+                    ) : toolName === "searchHotels" ? (
+                      <ListHotels hotels={result.hotels} onSelect={(hotelId) => {
+                        const hotel = result.hotels.find((h: any) => h.id === hotelId);
+                        if (hotel) append({ role: "user", content: `Select ${hotel.name}` });
+                      }} />
+                    ) : toolName === "selectHotelRoom" ? (
+                      <SelectRoom rooms={result.rooms} onSelect={(roomId) => {
+                        const room = result.rooms.find((r: any) => r.id === roomId);
+                        if (room) append({ role: "user", content: `Book ${room.type}` });
+                      }} />
+                    ) : toolName === "createHotelReservation" ? (
+                      <ReservationSummary reservation={result} onAuthorizePayment={() => {}} />
+                    ) : toolName === "authorizeHotelPayment" ? (
+                      <ReservationSummary reservation={result} onAuthorizePayment={() => {}} />
+                    ) : toolName === "verifyHotelPayment" ? (
+                      <ReservationSummary reservation={result} onAuthorizePayment={() => {}} />
+                    ) : toolName === "displayHotelBookingConfirmation" ? (
+                      <BookingConfirmation {...result} onBackToHome={() => {}} />
                     ) : (
                       <div>{JSON.stringify(result, null, 2)}</div>
                     )}

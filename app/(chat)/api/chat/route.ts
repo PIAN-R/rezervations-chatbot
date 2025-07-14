@@ -7,6 +7,11 @@ import {
   generateSampleFlightSearchResults,
   generateSampleFlightStatus,
   generateSampleSeatSelection,
+  generateSampleHotelSearchResults,
+  generateSampleHotelRoomSelection,
+  generateSampleHotelReservation,
+  generateSampleHotelPaymentAuthorization,
+  generateSampleHotelPaymentVerification,
 } from "@/ai/actions";
 import { auth } from "@/app/(auth)/auth";
 import {
@@ -34,28 +39,36 @@ export async function POST(request: Request) {
 
   const result = await streamText({
     model: geminiProModel,
-    system: `\n
-        - you help users book flights!
+    system: `
+        - you help users book flights and hotels!
         - keep your responses limited to a sentence.
         - DO NOT output lists.
         - after every tool call, pretend you're showing the result to the user and keep your response limited to a phrase.
         - today's date is ${new Date().toLocaleDateString()}.
         - ask follow up questions to nudge user into the optimal flow
-        - ask for any details you don't know, like name of passenger, etc.'
+        - ask for any details you don't know, like name of passenger or hotel guest, etc.
         - C and D are aisle seats, A and F are window seats, B and E are middle seats
         - assume the most popular airports for the origin and destination
         - IMPORTANT: When a user selects a flight with a specific price (e.g., "book the United Airlines flight for $1200"), 
           extract that price and pass it as selectedFlightPrice to createReservation to ensure price consistency
         - IMPORTANT: When a user selects a seat with a specific price (e.g., "seat 1A in Economy Class for $50"), 
           extract that price and pass it as selectedSeatPrice to createReservation, and sum it with selectedFlightPrice for the total
-        - here's the optimal flow
+        - here's the optimal flight booking flow:
           - search for flights
           - choose flight (extract and remember the selected flight's price)
           - select seats (extract and remember the selected seat's price)
           - create reservation (use the sum of selected flight and seat price for consistency)
           - authorize payment (requires user consent, wait for user to finish payment and let you know when done)
           - display boarding pass (DO NOT display boarding pass without verifying payment)
-        '
+        - here's the optimal hotel booking flow:
+          - search for hotels (city, check-in/check-out, guests)
+          - choose hotel
+          - select room (extract and remember the selected room's price)
+          - create hotel reservation (pass all details and total price)
+          - authorize hotel payment (requires user consent, wait for user to finish payment and let you know when done)
+          - verify hotel payment (ALWAYS call verifyHotelPayment after payment authorization)
+          - IMPORTANT: ONLY call displayHotelBookingConfirmation after verifyHotelPayment returns hasCompletedPayment: true
+          - display hotel booking confirmation (DO NOT display confirmation without verifying payment)
       `,
     messages: coreMessages,
     tools: {
@@ -223,6 +236,60 @@ export async function POST(request: Request) {
         }),
         execute: async (boardingPass) => {
           return boardingPass;
+        },
+      },
+      searchHotels: {
+        description: "Search for hotels in a city for given dates",
+        parameters: z.object({
+          city: z.string().describe("City name for the hotel search"),
+          checkInDate: z.string().describe("Check-in date (YYYY-MM-DD)"),
+          checkOutDate: z.string().describe("Check-out date (YYYY-MM-DD)"),
+          adults: z.number().optional().describe("Number of adults"),
+          roomQuantity: z.number().optional().describe("Number of rooms"),
+        }),
+        execute: async ({ city, checkInDate, checkOutDate, adults, roomQuantity }) => {
+          return await generateSampleHotelSearchResults({ city, checkInDate, checkOutDate, adults, roomQuantity });
+        },
+      },
+      selectHotelRoom: {
+        description: "Select a room for a hotel",
+        parameters: z.object({
+          hotelId: z.string().describe("Hotel ID"),
+        }),
+        execute: async ({ hotelId }) => {
+          return await generateSampleHotelRoomSelection({ hotelId });
+        },
+      },
+      createHotelReservation: {
+        description: "Create a hotel reservation",
+        parameters: z.object({
+          hotelId: z.string().describe("Hotel ID"),
+          roomId: z.string().describe("Room ID"),
+          guestName: z.string().describe("Guest name"),
+          checkInDate: z.string().describe("Check-in date (YYYY-MM-DD)"),
+          checkOutDate: z.string().describe("Check-out date (YYYY-MM-DD)"),
+          totalPrice: z.number().describe("Total price for the stay"),
+        }),
+        execute: async ({ hotelId, roomId, guestName, checkInDate, checkOutDate, totalPrice }) => {
+          return await generateSampleHotelReservation({ hotelId, roomId, guestName, checkInDate, checkOutDate, totalPrice });
+        },
+      },
+      authorizeHotelPayment: {
+        description: "Authorize payment for a hotel reservation",
+        parameters: z.object({
+          reservationId: z.string().describe("Hotel reservation ID"),
+        }),
+        execute: async ({ reservationId }) => {
+          return await generateSampleHotelPaymentAuthorization({ reservationId });
+        },
+      },
+      verifyHotelPayment: {
+        description: "Verify payment status for a hotel reservation",
+        parameters: z.object({
+          reservationId: z.string().describe("Hotel reservation ID"),
+        }),
+        execute: async ({ reservationId }) => {
+          return await generateSampleHotelPaymentVerification({ reservationId });
         },
       },
     },

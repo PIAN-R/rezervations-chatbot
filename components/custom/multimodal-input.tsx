@@ -147,9 +147,9 @@ export function MultimodalInput({
       action: t("bookFlight") + " from San Francisco to London",
     },
     {
-      title: t("flightStatus"),
-      label: t("flightStatusDetail", { flight: "BA142" }),
-      action: t("flightStatusDetail", { flight: "BA142" }),
+      title: t("bookHotel"),
+      label: t("bookHotelDetail", { city: "London" }),
+      action: t("bookHotel") + " in London",
     },
   ];
 
