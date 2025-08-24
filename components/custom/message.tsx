@@ -3,6 +3,7 @@
 import { Attachment, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
+import { useState } from "react";
 
 import { BotIcon, UserIcon } from "./icons";
 import { Markdown } from "./markdown";
@@ -19,6 +20,9 @@ import { ListHotels } from "../hotels/list-hotels";
 import { SelectRoom } from "../hotels/select-room";
 import { ReservationSummary } from "../hotels/reservation-summary";
 import { BookingConfirmation } from "../hotels/booking-confirmation";
+import { Calendar } from "./calendar";
+import type { Message as AIMessage } from "ai";
+import { useLanguage } from "./language-provider";
 
 export const Message = ({
   chatId,
@@ -38,6 +42,10 @@ export const Message = ({
     chatRequestOptions?: any
   ) => Promise<string | null | undefined>;
 }) => {
+  // Track selected currency for optimistic UI updates
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
+  const { t, lang, translations } = useLanguage();
+
   return (
     <motion.div
       className={`flex flex-row gap-4 px-4 w-full md:w-[500px] md:px-0 first-of-type:pt-20 mb-4`}
@@ -62,6 +70,92 @@ export const Message = ({
 
               if (state === "result") {
                 const { result } = toolInvocation;
+                console.log("TOOL INVOCATION:", toolName, result);
+                // For selectDates, allow optimistic currency switching
+                if (toolName === "selectDates") {
+                  const currency = selectedCurrency || result.currency || "USD";
+                  return (
+                    <Calendar
+                      mode={result.mode || "oneway"}
+                      availableDates={result.availableDates || []}
+                      selected={result.selected || null}
+                      onSelect={(dateOrRange) => {
+                        let dateString = "";
+                        let messageContent = "";
+                        
+                        console.log("Calendar onSelect called with:", dateOrRange);
+                        console.log("Translation function available:", !!t);
+                        console.log("Current language:", lang);
+                        console.log("Translation key test:", t("departureDateSelected", { date: "test", currency: "USD" }));
+                        console.log("Available translation keys:", Object.keys(translations || {}).slice(0, 10));
+                        
+                        // Handle different date selection modes
+                        if (result.mode === "roundtrip" && Array.isArray(dateOrRange)) {
+                          const [from, to] = dateOrRange;
+                          if (from && to) {
+                            if (from.getTime() === to.getTime()) {
+                              // Only departure date selected
+                              dateString = from.toISOString().slice(0, 10);
+                              messageContent = t("departureDateSelected", { 
+                                date: dateString, 
+                                currency: result.currency || "EUR" 
+                              });
+                              console.log("Roundtrip departure only message:", messageContent);
+                            } else {
+                              // Both dates selected
+                              dateString = `${from.toISOString().slice(0, 10)} to ${to.toISOString().slice(0, 10)}`;
+                              messageContent = t("dateSelected", { 
+                                date: dateString, 
+                                currency: result.currency || "EUR" 
+                              });
+                              console.log("Roundtrip both dates message:", messageContent);
+                            }
+                          } else if (from) {
+                            // Only departure date selected
+                            dateString = from.toISOString().slice(0, 10);
+                            messageContent = t("departureDateSelected", { 
+                              date: dateString, 
+                              currency: result.currency || "EUR" 
+                            });
+                            console.log("Roundtrip departure only message:", messageContent);
+                          } else {
+                            messageContent = t("noDateSelected");
+                            console.log("No date selected message:", messageContent);
+                          }
+                        } else if (dateOrRange instanceof Date) {
+                          dateString = dateOrRange.toISOString().slice(0, 10);
+                          messageContent = t("dateSelected", { 
+                            date: dateString, 
+                            currency: result.currency || "EUR" 
+                          });
+                          console.log("Single date message:", messageContent);
+                        } else {
+                          messageContent = t("noDateSelected");
+                          console.log("No date selected message:", messageContent);
+                        }
+                        
+                        console.log("Final message content:", messageContent);
+                        
+                        append({
+                          role: "user",
+                          content: messageContent
+                        });
+                      }}
+                      currency={currency}
+                      onCurrencyChange={(cur) => {
+                        setSelectedCurrency(cur); // Optimistically update UI
+                        append({ role: "user", content: `Change currency to ${cur}` });
+                      }}
+                      currencies={result.currencies || ["EUR", "USD", "GBP"]}
+                    />
+                  );
+                } else if (toolName === "searchFlights") {
+                  // Pass mode/tripType from previous selectDates or result if available
+                  const tripType = result.mode || result.tripType || "oneway";
+                  return (
+                    <ListFlights chatId={chatId} results={result} tripType={tripType} />
+                  );
+                }
 
                 return (
                   <div key={toolCallId}>

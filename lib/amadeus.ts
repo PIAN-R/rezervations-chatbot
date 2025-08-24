@@ -178,10 +178,11 @@ class AmadeusClient {
         throw new Error(`Amadeus authentication failed: ${response.statusText}`);
       }
 
-      this.token = await response.json();
-      this.tokenExpiry = now + (this.token.expires_in * 1000) - 60000; // Expire 1 minute early
+      const tokenData = await response.json();
+      this.token = tokenData;
+      this.tokenExpiry = now + (tokenData.expires_in * 1000) - 60000; // Expire 1 minute early
       
-      return this.token.access_token;
+      return tokenData.access_token;
     } catch (error) {
       console.error('Failed to get Amadeus token:', error);
       throw error;
@@ -211,6 +212,8 @@ class AmadeusClient {
         });
 
         if (!response.ok) {
+          const errorBody = await response.text();
+          console.error('Amadeus API error details:', errorBody);
           if (response.status === 401) {
             // Token might be expired, clear it and retry
             this.token = null;
@@ -256,6 +259,8 @@ class AmadeusClient {
         });
 
         if (!response.ok) {
+          const errorBody = await response.text();
+          console.error('Amadeus API error details:', errorBody);
           if (response.status === 401) {
             // Token might be expired, clear it and retry
             this.token = null;

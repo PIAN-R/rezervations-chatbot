@@ -34,5 +34,18 @@
   "unavailable": "Indisponibil",
   "paymentVerified": "Tranzacția ta a fost verificată!",
   "paymentNotVerified": "Nu am putut verifica plata, te rugăm să încerci din nou!",
-  "startNewChat": "Începe un chat nou"
+  "startNewChat": "Începe un chat nou",
+  "selectDates": "Selectează datele",
+  "soldOut": "Vândut",
+  "noAvailability": "Fără disponibilitate",
+  "selectDepartureReturnDates": "Te rog să selectezi datele de plecare și întoarcere pentru zborul tău din {from} către {to}",
+  "selectDepartureReturnDatesContinue": "Te rog să selectezi datele de plecare și întoarcere pentru a continua cu rezervarea zborului",
+  "selectDepartureReturnDatesToContinue": "Te rog să selectezi datele de plecare și întoarcere pentru a putea continua cu rezervarea zborului",
+  "dateSelected": "Am selectat data: {{date}} în {{currency}}",
+  "departureDateSelected": "Am selectat data de plecare: {{date}} în {{currency}}. Te rog să selectezi și data de întoarcere.",
+  "noDateSelected": "Nu a fost selectată nicio dată",
+  "changeCurrencyTo": "Schimbă moneda la {currency}",
+  "selectDepartureReturnDates": "Te rog să selectezi datele de plecare și întoarcere pentru zborul tău din {from} către {to}",
+  "selectDepartureReturnDatesContinue": "Te rog să selectezi datele de plecare și întoarcere pentru a continua cu rezervarea zborului",
+  "selectDepartureReturnDatesToContinue": "Te rog să selectezi datele de plecare și întoarcere pentru a putea continua cu rezervarea zborului"
 } 

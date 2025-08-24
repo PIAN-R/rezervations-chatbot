@@ -79,9 +79,11 @@ const SAMPLE = {
 export function ListFlights({
   chatId,
   results = SAMPLE,
+  tripType = "oneway",
 }: {
   chatId: string;
   results?: typeof SAMPLE;
+  tripType?: "oneway" | "roundtrip";
 }) {
   const { append } = useChat({
     id: chatId,
@@ -144,7 +146,9 @@ export function ListFlights({
                   <span>{arrivalTime}</span>
                 </div>
                 {/* One Way badge */}
-                <span className="ml-2 px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-100 font-semibold border border-zinc-700">{t('oneWay')}</span>
+                <span className="ml-2 px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-100 font-semibold border border-zinc-700">
+                  {tripType === "roundtrip" ? t('roundTrip') : t('oneWay')}
+                </span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin size={12} />
@@ -175,7 +179,11 @@ export function ListFlights({
             <div className="flex flex-col gap-1 items-end">
               <div className="flex flex-row gap-2">
                 <div className="text-base sm:text-base text-emerald-600 dark:text-emerald-500 font-medium">
-                  ${flight.priceInUSD.toFixed(0)}
+                  {new Intl.NumberFormat(t('currency'), {
+                    style: 'currency',
+                    currency: flight.currency || 'USD',
+                    maximumFractionDigits: 0,
+                  }).format(flight.price || flight.priceInUSD)}
                 </div>
               </div>
               <div className="text-xs text-muted-foreground">

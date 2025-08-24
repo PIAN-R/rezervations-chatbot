@@ -174,16 +174,16 @@ export function SelectSeats({
   );
 
   if (!hasRealData) {
-    return (
+  return (
       <div className="flex flex-col gap-2 bg-muted rounded-lg p-4">
         <div className="flex items-center gap-2 text-amber-600">
           <AlertCircle size={16} />
           <span className="text-sm font-medium">{t('sampleSeatMap')}</span>
-        </div>
+          </div>
         <p className="text-xs text-muted-foreground">
           {t('realSeatDataUnavailable')}
         </p>
-      </div>
+          </div>
     );
   }
 
@@ -242,7 +242,7 @@ export function SelectSeats({
                 {seatLetters.map((letter) => (
                   <div key={letter} className="text-center">{letter}</div>
                 ))}
-              </div>
+                  </div>
               {/* Seat Rows */}
               {sortedRowNumbers.map((rowNum) => (
                 <div key={rowNum} className="grid grid-cols-8 gap-2 items-center">
@@ -255,22 +255,22 @@ export function SelectSeats({
                       return (
                         <div key={letter} className="flex flex-col items-center">
                           <div
-                            onClick={() => {
+                  onClick={() => {
                               if (seat.isAvailable) {
-                                append({
-                                  role: "user",
+                    append({
+                      role: "user",
                                   content: t('chooseSeat', {seat: seat.seatNumber, class: className, price: `$${seat.priceInUSD}`}),
-                                });
+                    });
                               }
-                            }}
-                            className={cx(
+                  }}
+                  className={cx(
                               "cursor-pointer group relative size-8 sm:size-10 flex-shrink-0 flex rounded-sm flex-row items-center justify-center border-2 transition-all",
-                              {
+                    {
                                 [`${classInfo.bgColor} ${classInfo.borderColor} ${classInfo.hoverColor} ${classInfo.color}`]: seat.isAvailable,
                                 "bg-gray-500 border-gray-600 cursor-not-allowed text-gray-300": !seat.isAvailable,
-                              },
-                            )}
-                          >
+                    },
+                  )}
+                >
                             <div className="text-xs font-medium">
                               {seat.isAvailable ? `$${seat.priceInUSD}` : "X"}
                             </div>
@@ -287,7 +287,7 @@ export function SelectSeats({
                     }
                   })}
                 </div>
-              ))}
+            ))}
             </div>
           </div>
         );

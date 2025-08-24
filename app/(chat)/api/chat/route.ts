@@ -47,20 +47,48 @@ export async function POST(request: Request) {
         - today's date is ${new Date().toLocaleDateString()}.
         - ask follow up questions to nudge user into the optimal flow
         - ask for any details you don't know, like name of passenger or hotel guest, etc.
+        - if the user asks for a flight today, skip any date selection and call searchFlights with departureDate set to the current date
+        - CRITICAL: Always respond in the same language the user is using. If they speak Romanian, respond in Romanian. If they speak English, respond in English. If they speak Russian, respond in Russian.
         - C and D are aisle seats, A and F are window seats, B and E are middle seats
         - assume the most popular airports for the origin and destination
         - IMPORTANT: When a user selects a flight with a specific price (e.g., "book the United Airlines flight for $1200"), 
           extract that price and pass it as selectedFlightPrice to createReservation to ensure price consistency
         - IMPORTANT: When a user selects a seat with a specific price (e.g., "seat 1A in Economy Class for $50"), 
           extract that price and pass it as selectedSeatPrice to createReservation, and sum it with selectedFlightPrice for the total
+        - FLIGHT & HOTEL BOOKING FLOW UPDATE: 
+          - FIRST: Always ask the user to confirm their trip type BEFORE showing any calendar:
+            * For flights: Ask "Would you like a one-way or round-trip flight?" (in the user's language)
+            * For hotels: Ask "Would you like to check-in and check-out on specific dates?" (in the user's language)
+          - SECOND: Wait for user confirmation of trip type
+          - THIRD: Use the selectDates tool to show a calendar for date selection
+          - FOURTH: Wait for user to select dates before proceeding to searchFlights or searchHotels
+          - IMPORTANT: Never skip the trip type confirmation step - this is mandatory for all languages
+          - LANGUAGE EXAMPLES:
+            * English: "Would you like a one-way or round-trip flight?"
+            * Romanian: "Te rog să confirmi tipul de zbor: dus-întors sau doar dus?"
+            * Russian: "Пожалуйста, подтвердите тип полета: в одну сторону или туда-обратно?"
+        - Always use the user's selected currency for all price displays and tool calls. If the user changes the currency, update all subsequent results to match, including the calendar and flight/hotel search results.
         - here's the optimal flight booking flow:
-          - search for flights
-          - choose flight (extract and remember the selected flight's price)
-          - select seats (extract and remember the selected seat's price)
-          - create reservation (use the sum of selected flight and seat price for consistency)
-          - authorize payment (requires user consent, wait for user to finish payment and let you know when done)
-          - display boarding pass (DO NOT display boarding pass without verifying payment)
+          - STEP 1: Ask user to confirm trip type (one-way vs round-trip) in their language
+          - STEP 2: selectDates (calendar step for date selection) - IMPORTANT: Pass the correct mode parameter:
+            * For one-way: mode: "oneway" (shows single date selection)
+            * For round-trip: mode: "roundtrip" (shows departure and return date selection)
+          - CALENDAR MODE: The calendar will automatically display in the correct mode based on the mode parameter you pass
+          - CALENDAR LANGUAGE: The calendar will automatically display text in the user's language (Romanian, English, or Russian)
+          - STEP 3: search for flights - IMPORTANT: Pass the same mode parameter from step 1:
+            * If user selected one-way: mode: "oneway"
+            * If user selected round-trip: mode: "roundtrip"
+          - STEP 4: choose flight (extract and remember the selected flight's price)
+          - STEP 5: select seats (extract and remember the selected seat's price)
+          - STEP 6: create reservation (use the sum of selected flight and seat price for consistency)
+          - STEP 7: authorize payment (requires user consent, wait for user to finish payment and let you know when done)
+          - STEP 8: verify payment (ALWAYS call verifyPayment after payment authorization)
+          - STEP 9: display boarding pass (ONLY after user confirms payment is complete with "done" or equivalent in their language)
+            * English: "done", "finished", "complete"
+            * Romanian: "gata", "terminat", "complet"
+            * Russian: "готово", "завершено", "закончено"
         - here's the optimal hotel booking flow:
+          - selectDates (calendar step for check-in/check-out selection)
           - search for hotels (city, check-in/check-out, guests)
           - choose hotel
           - select room (extract and remember the selected room's price)
@@ -107,14 +135,18 @@ export async function POST(request: Request) {
         parameters: z.object({
           origin: z.string().describe("Origin airport or city"),
           destination: z.string().describe("Destination airport or city"),
+          currency: z.string().default("USD"),
+          mode: z.enum(["oneway", "roundtrip"]).default("oneway"), // Add this
         }),
-        execute: async ({ origin, destination }) => {
+        execute: async ({ origin, destination, currency, mode }) => {
           const results = await generateSampleFlightSearchResults({
             origin,
             destination,
+            currency,
+            mode, // Pass mode to the mock generator
           });
-
-          return results;
+          // Attach mode to the result so the frontend can use it
+          return { ...results, mode };
         },
       },
       selectSeats: {
@@ -290,6 +322,43 @@ export async function POST(request: Request) {
         }),
         execute: async ({ reservationId }) => {
           return await generateSampleHotelPaymentVerification({ reservationId });
+        },
+      },
+      selectDates: {
+        description: "Show a calendar for the user to select travel dates, with prices and availability.",
+        parameters: z.object({
+          mode: z.enum(["oneway", "roundtrip"]).default("oneway"),
+          context: z.enum(["flight", "hotel"]).default("flight"),
+          origin: z.string().optional(),
+          destination: z.string().optional(),
+          city: z.string().optional(),
+          currency: z.string().default("USD"),
+        }),
+        execute: async ({ mode, context, currency }) => {
+          // Generate mock availableDates for the next 30 days
+          const today = new Date();
+          const availableDates = Array.from({ length: 30 }, (_, i) => {
+            const date = new Date(today);
+            date.setDate(today.getDate() + i);
+            const iso = date.toISOString().slice(0, 10);
+            // Randomly mark some days as sold out
+            const available = Math.random() > 0.15;
+            // Random price between 70 and 300, or null if sold out
+            const price = available ? Math.floor(Math.random() * 230) + 70 : null;
+            return {
+              date: iso,
+              price,
+              currency,
+              available,
+            };
+          });
+          return {
+            mode,
+            availableDates,
+            selected: null,
+            currency,
+            currencies: ["EUR", "USD", "GBP"],
+          };
         },
       },
     },

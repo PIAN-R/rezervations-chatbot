@@ -34,5 +34,18 @@
   "unavailable": "Unavailable",
   "paymentVerified": "Your payment transaction has been verified!",
   "paymentNotVerified": "Unable to verify your payment, please try again!",
-  "startNewChat": "Start a new chat"
+  "startNewChat": "Start a new chat",
+  "selectDates": "Select dates",
+  "soldOut": "Sold out",
+  "noAvailability": "No availability",
+  "selectDepartureReturnDates": "Please select the departure and return dates for your flight from {from} to {to}",
+  "selectDepartureReturnDatesContinue": "Please select the departure and return dates to continue with the flight reservation",
+  "selectDepartureReturnDatesToContinue": "Please select the departure and return dates to be able to continue with the flight reservation",
+  "dateSelected": "Selected date: {{date}} in {{currency}}",
+  "departureDateSelected": "Selected departure date: {{date}} in {{currency}}. Please select the return date as well.",
+  "noDateSelected": "No date selected",
+  "changeCurrencyTo": "Change currency to {currency}",
+  "selectDepartureReturnDates": "Please select the departure and return dates for your flight from {from} to {to}",
+  "selectDepartureReturnDatesContinue": "Please select the departure and return dates to continue with the flight reservation",
+  "selectDepartureReturnDatesToContinue": "Please select the departure and return dates to be able to continue with the flight reservation"
 } 

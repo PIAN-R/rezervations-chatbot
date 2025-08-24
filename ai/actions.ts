@@ -91,9 +91,13 @@ export async function generateSampleFlightStatus({
 export async function generateSampleFlightSearchResults({
   origin,
   destination,
+  currency = "USD",
+  mode = "oneway", // Add this
 }: {
   origin: string;
   destination: string;
+  currency?: string;
+  mode?: "oneway" | "roundtrip";
 }) {
   try {
     // Try to find airport codes for the given origin and destination
@@ -152,7 +156,8 @@ export async function generateSampleFlightSearchResults({
       };
     });
 
-    return { flights };
+    // For now, just return as is (real API always returns in requested currency)
+    return { flights, mode };
 
   } catch (error) {
     console.error('Amadeus API error, falling back to mock data:', error);
@@ -160,12 +165,10 @@ export async function generateSampleFlightSearchResults({
     // Fallback to AI-generated mock data
     const { object: flightSearchResults } = await generateObject({
       model: geminiProModel,
-      prompt: `Generate search results for flights from ${origin} to ${destination}, limit to 4 results`,
+      prompt: `Generate search results for flights from ${origin} to ${destination}, limit to 4 results, prices in ${currency}`,
       output: "array",
       schema: z.object({
-        id: z
-          .string()
-          .describe("Unique identifier for the flight, like BA123, AA31, etc."),
+        id: z.string().describe("Unique identifier for the flight, like BA123, AA31, etc."),
         departure: z.object({
           cityName: z.string().describe("Name of the departure city"),
           airportCode: z.string().describe("IATA code of the departure airport"),
@@ -176,15 +179,19 @@ export async function generateSampleFlightSearchResults({
           airportCode: z.string().describe("IATA code of the arrival airport"),
           timestamp: z.string().describe("ISO 8601 arrival date and time"),
         }),
-        airlines: z.array(
-          z.string().describe("Airline names, e.g., American Airlines, Emirates"),
-        ),
-        priceInUSD: z.number().describe("Flight price in US dollars"),
+        airlines: z.array(z.string().describe("Airline names, e.g., American Airlines, Emirates")),
+        price: z.number().describe(`Flight price in ${currency}`),
         numberOfStops: z.number().describe("Number of stops during the flight"),
+        currency: z.string().describe("Currency code for the price"),
       }),
     });
-
-    return { flights: flightSearchResults };
+    // Map to expected frontend format
+    const flights = flightSearchResults.map((f: any) => ({
+      ...f,
+      priceInUSD: f.price, // For now, use price as priceInUSD for compatibility
+      currency: currency,
+    }));
+    return { flights, mode: "oneway" }; // Ensure mode is set to oneway for fallback
   }
 }
 

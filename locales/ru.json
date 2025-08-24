@@ -34,5 +34,12 @@
   "unavailable": "Недоступно",
   "paymentVerified": "Ваша оплата была подтверждена!",
   "paymentNotVerified": "Не удалось подтвердить оплату, попробуйте еще раз!",
-  "startNewChat": "Начать новый чат"
+  "startNewChat": "Начать новый чат",
+  "dateSelected": "Выбранная дата: {{date}} в {{currency}}",
+  "departureDateSelected": "Выбрана дата отправления: {{date}} в {{currency}}. Пожалуйста, выберите также дату возвращения.",
+  "noDateSelected": "Дата не выбрана",
+  "selectDepartureReturnDates": "Пожалуйста, выберите даты отправления и возвращения для вашего рейса из {from} в {to}",
+  "selectDepartureReturnDatesContinue": "Пожалуйста, выберите даты отправления и возвращения для продолжения бронирования рейса",
+  "selectDepartureReturnDatesToContinue": "Пожалуйста, выберите даты отправления и возвращения, чтобы иметь возможность продолжить бронирование рейса",
+  "changeCurrencyTo": "Изменить валюту на {currency}"
 } 

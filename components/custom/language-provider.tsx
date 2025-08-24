@@ -13,13 +13,17 @@ interface LanguageContextProps {
   lang: Lang;
   setLang: (lang: Lang) => void;
   t: (key: string, vars?: Record<string, string | number>) => string;
+  isLoading: boolean;
+  translations: Translations;
 }
 
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
 
 function interpolate(str: string, vars?: Record<string, string | number>) {
   if (!vars) return str;
-  return str.replace(/\{(\w+)\}/g, (_, k) => (vars[k] !== undefined ? String(vars[k]) : `{${k}}`));
+  // Handle both single curly braces {key} and double curly braces {{key}}
+  return str.replace(/\{\{(\w+)\}\}/g, (_, k) => (vars[k] !== undefined ? String(vars[k]) : `{{${k}}}`))
+             .replace(/\{(\w+)\}/g, (_, k) => (vars[k] !== undefined ? String(vars[k]) : `{${k}}`));
 }
 
 const loadTranslations = async (lang: Lang): Promise<Translations> => {
@@ -36,6 +40,7 @@ const loadTranslations = async (lang: Lang): Promise<Translations> => {
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLangState] = useState<Lang>('en');
   const [translations, setTranslations] = useState<Translations>({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const stored = typeof window !== 'undefined' ? localStorage.getItem('lang') : null;
@@ -44,7 +49,13 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    loadTranslations(lang).then(setTranslations);
+    console.log("Loading translations for language:", lang);
+    setIsLoading(true);
+    loadTranslations(lang).then((loadedTranslations) => {
+      console.log("Translations loaded:", Object.keys(loadedTranslations).length, "keys");
+      setTranslations(loadedTranslations);
+      setIsLoading(false);
+    });
     if (typeof window !== 'undefined') {
       localStorage.setItem('lang', lang);
     }
@@ -55,12 +66,17 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const t = (key: string, vars?: Record<string, string | number>) => {
+    if (isLoading) {
+      console.log("Translations still loading, returning key:", key);
+      return key; // Return key while loading to avoid showing raw keys
+    }
     const str = translations[key] || key;
+    console.log("Translation lookup:", { key, found: !!translations[key], result: str });
     return interpolate(str, vars);
   };
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t }}>
+    <LanguageContext.Provider value={{ lang, setLang, t, isLoading, translations }}>
       {children}
     </LanguageContext.Provider>
   );
