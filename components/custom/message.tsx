@@ -74,6 +74,7 @@ export const Message = ({
                 // For selectDates, allow optimistic currency switching
                 if (toolName === "selectDates") {
                   const currency = selectedCurrency || result.currency || "USD";
+                  console.log("Calendar currency debug:", { selectedCurrency, resultCurrency: result.currency, finalCurrency: currency });
                   return (
                     <Calendar
                       mode={result.mode || "oneway"}
@@ -92,30 +93,20 @@ export const Message = ({
                         // Handle different date selection modes
                         if (result.mode === "roundtrip" && Array.isArray(dateOrRange)) {
                           const [from, to] = dateOrRange;
-                          if (from && to) {
-                            if (from.getTime() === to.getTime()) {
-                              // Only departure date selected
-                              dateString = from.toISOString().slice(0, 10);
-                              messageContent = t("departureDateSelected", { 
-                                date: dateString, 
-                                currency: result.currency || "EUR" 
-                              });
-                              console.log("Roundtrip departure only message:", messageContent);
-                            } else {
-                              // Both dates selected
-                              dateString = `${from.toISOString().slice(0, 10)} to ${to.toISOString().slice(0, 10)}`;
-                              messageContent = t("dateSelected", { 
-                                date: dateString, 
-                                currency: result.currency || "EUR" 
-                              });
-                              console.log("Roundtrip both dates message:", messageContent);
-                            }
+                          if (from && to && to !== from) {
+                            // Both dates selected (different dates)
+                            dateString = `${from.toISOString().slice(0, 10)} to ${to.toISOString().slice(0, 10)}`;
+                            messageContent = t("dateSelected", { 
+                              date: dateString, 
+                              currency: currency 
+                            });
+                            console.log("Roundtrip both dates message:", messageContent);
                           } else if (from) {
-                            // Only departure date selected
+                            // Only departure date selected (to is undefined or same as from)
                             dateString = from.toISOString().slice(0, 10);
                             messageContent = t("departureDateSelected", { 
                               date: dateString, 
-                              currency: result.currency || "EUR" 
+                              currency: currency 
                             });
                             console.log("Roundtrip departure only message:", messageContent);
                           } else {
@@ -126,7 +117,7 @@ export const Message = ({
                           dateString = dateOrRange.toISOString().slice(0, 10);
                           messageContent = t("dateSelected", { 
                             date: dateString, 
-                            currency: result.currency || "EUR" 
+                            currency: currency 
                           });
                           console.log("Single date message:", messageContent);
                         } else {
@@ -144,7 +135,11 @@ export const Message = ({
                       currency={currency}
                       onCurrencyChange={(cur) => {
                         setSelectedCurrency(cur); // Optimistically update UI
-                        append({ role: "user", content: `Change currency to ${cur}` });
+                        // Send a clear message to the AI about currency change
+                        append({ 
+                          role: "user", 
+                          content: `I want to change the currency to ${cur}. Please update all prices and continue in ${cur}.` 
+                        });
                       }}
                       currencies={result.currencies || ["EUR", "USD", "GBP"]}
                     />

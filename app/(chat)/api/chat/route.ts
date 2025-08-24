@@ -67,12 +67,18 @@ export async function POST(request: Request) {
             * English: "Would you like a one-way or round-trip flight?"
             * Romanian: "Te rog să confirmi tipul de zbor: dus-întors sau doar dus?"
             * Russian: "Пожалуйста, подтвердите тип полета: в одну сторону или туда-обратно?"
-        - Always use the user's selected currency for all price displays and tool calls. If the user changes the currency, update all subsequent results to match, including the calendar and flight/hotel search results.
+        - CRITICAL CURRENCY HANDLING: Always use the user's selected currency for all price displays and tool calls. If the user changes the currency:
+          * IMMEDIATELY call selectDates again with the new currency to refresh the calendar
+          * Update all subsequent tool calls to use the new currency
+          * Never mix currencies in the same conversation
+          * When user says "change currency to X", call selectDates with currency: X
         - here's the optimal flight booking flow:
           - STEP 1: Ask user to confirm trip type (one-way vs round-trip) in their language
           - STEP 2: selectDates (calendar step for date selection) - IMPORTANT: Pass the correct mode parameter:
             * For one-way: mode: "oneway" (shows single date selection)
             * For round-trip: mode: "roundtrip" (shows departure and return date selection)
+          - DATE AVAILABILITY: When user selects a date from the calendar, that date IS available. Never tell the user a selected date is unavailable.
+          - CALENDAR INTERACTION: The calendar shows available dates with prices. If a date has a price, it's available. If it shows "Sold out", it's unavailable.
           - CALENDAR MODE: The calendar will automatically display in the correct mode based on the mode parameter you pass
           - CALENDAR LANGUAGE: The calendar will automatically display text in the user's language (Romanian, English, or Russian)
           - STEP 3: search for flights - IMPORTANT: Pass the same mode parameter from step 1:

@@ -17,7 +17,7 @@ interface CalendarProps {
   mode: "oneway" | "roundtrip";
   availableDates: CalendarDay[];
   selected: Date | [Date, Date] | null;
-  onSelect: (date: Date | [Date, Date] | null) => void;
+  onSelect: (date: Date | [Date, Date] | [Date, undefined] | null) => void;
   currency: string;
   onCurrencyChange?: (currency: string) => void;
   currencies: string[];
@@ -203,8 +203,8 @@ export const Calendar: React.FC<CalendarProps> = ({
           onSelect([date.from, date.to]);
         } else if (date.from) {
           console.log("Roundtrip: only from selected");
-          // Send the departure date even if return date is not selected yet
-          onSelect([date.from, date.from]);
+          // Send the departure date only
+          onSelect([date.from, undefined]);
         } else {
           console.log("Roundtrip: no dates selected");
           onSelect(null);
